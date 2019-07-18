@@ -7,6 +7,7 @@ from .daily_data import get_daily_data
 def evaluate(site, date, model_name='best'):
     cli = pymortar.Client()
     date = pd.to_datetime(date).date()
+    import sys
     best_model_path = './models/{}/{}'.format(site, model_name)
     model_file = open(best_model_path, 'rb')
     best_model = pickle.load(model_file)
@@ -16,7 +17,7 @@ def evaluate(site, date, model_name='best'):
     return {
         'site': site,
         'date': date,
-        'cost': {
+        'energy cost': {
             'actual': daily_data['actual_cost'],
             'baseline': daily_data['baseline_cost']
         },
