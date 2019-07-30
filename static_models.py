@@ -17,6 +17,8 @@ from .feature_engineering import get_time_of_week, get_t_cutoff_values
 from .utils import get_window_of_day, get_workdays, get_closest_station, mean_absolute_percentage_error
 from .baseline_functions import create_pivot, get_X_in_Y_baseline,  make_baseline
 
+#TODO update event hours to be not hardcoded
+
 def power_model(event_day, data, PDP_dates, X=10,Y=10): #event_day input must be in datetime.date(yyyy, mm, dd) format
     #power and weather are column names
     if type(PDP_dates[0]) == str:
@@ -58,8 +60,8 @@ def weather_model(event_day,data, PDP_dates,X=10,Y=10):
     weather_pivot=create_pivot(data[['weather']])
     demand_baseline, days, event_data, x_days, ratio= get_X_in_Y_baseline(demand_pivot, weather_pivot, event_day,
     PDP_dates=PDP_dates,event_index=event_index,
-                        X=5,
-                        Y=10,
+                        X=X,
+                        Y=Y,
                         event_start_h=14,
                         event_end_h=18,
                         adj_ratio=True,

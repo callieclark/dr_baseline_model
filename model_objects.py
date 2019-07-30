@@ -4,7 +4,7 @@ from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
 from pandas.tseries.offsets import CustomBusinessDay
 
 import numpy as np
-import datetime
+import datetime,pytz
 from numpy import trapz #only used in plot metric bars
 #from Wrapper import *
 from sklearn.metrics import mean_squared_error
@@ -63,7 +63,7 @@ class WeatherModel(BaselineModel):
     def predict(self, site, event_day):
         # Get the correct data for prediction
         start, end = get_month_window(event_day)
-        data = get_df(site, start, end, agg='MEAN', interval='15min')
+        data = get_df(site, start, end, agg='MEAN', interval='15m')
         #added two lines below
         #data['weather'] = data['weather'].interpolate()
         event_weather=data[event_day.strftime("%Y-%m-%d")][['weather']]
@@ -93,7 +93,7 @@ class PowerModel(BaselineModel):
     def predict(self, site, event_day):
         # Get the correct data for prediction
         start, end = get_month_window(event_day)
-        data = get_df(site, start, end, agg='MEAN', interval='15min')
+        data = get_df(site, start, end, agg='MEAN', interval='15m')
         #added two lines below
         #data['weather'] = data['weather'].interpolate()
         event_weather=data[event_day.strftime("%Y-%m-%d")][['weather']]
@@ -117,8 +117,11 @@ class RidgeModel(BaselineModel):
         exclude_dates is a an optional set of datetime.date objects to exclude from training
         cli: pymortar client
         """
-        start_train = pd.to_datetime('2016-01-01').tz_localize('US/Pacific').isoformat()
-        end_train = pd.to_datetime(datetime.datetime.today().date()).tz_localize('US/Pacific').isoformat()
+        # start_train = pd.to_datetime('2016-01-01').tz_localize('US/Pacific').isoformat()
+        # end_train = pd.to_datetime(datetime.datetime.today().date()).tz_localize('US/Pacific').isoformat()
+
+        start_train = pytz.timezone("US/Pacific").localize(datetime.datetime(year=2016, month=1, day=1, hour=1, minute=0))
+        end_train = pytz.timezone("US/Pacific").localize(datetime.datetime.today())
         alphas = [0.0001, .001, 0.01, 0.05, 0.1, 0.5, 1, 10]
 
         # Get data from pymortar
@@ -155,7 +158,7 @@ class RidgeModel(BaselineModel):
 
         # Get data from pymortar
         #changed line below
-        data = get_df(site, start, end, agg='MEAN', interval='15min')
+        data = get_df(site, start, end, agg='MEAN', interval='15m')
         data['weather'] = data['weather'].interpolate()
         event_weather=data[event_day.strftime("%Y-%m-%d")][['weather']]
 

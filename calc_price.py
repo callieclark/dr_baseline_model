@@ -1,6 +1,6 @@
 import xbos_services_getter
 from .utils import  get_month_window
-from .get_greenbutton_id import *
+#from .get_greenbutton_id import *
 import datetime as dtime
 from datetime import timedelta
 from .get_data import get_df
@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import math
 import os
+import pytz, datetime
 
 # calculator = CostCalculator()
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))+'/'
@@ -20,6 +21,7 @@ def eval_nan(x):
     return x
 
 def calc_price(power_vector, site, start_datetime, end_datetime):
+
     total_price = calc_total_price(power_vector, start_datetime, end_datetime, site)
     return total_price
 
@@ -34,7 +36,6 @@ def calc_total_price(power_vector,  start_datetime, end_datetime, site, interval
     start_datetime: the datetime object representing the start time (starts )
     end_datetime: the datetime object representing the start time
     '''
-
     time_delta = end_datetime - start_datetime
     interval_15_min = (3600*24*time_delta.days + time_delta.seconds)/(60*15)
     if len(power_vector) == interval_15_min or interval == '15min':
@@ -42,15 +43,15 @@ def calc_total_price(power_vector,  start_datetime, end_datetime, site, interval
         energy_vector.index = pd.date_range(start=start_datetime, end=end_datetime, freq='1h')
     else:
         energy_vector = power_vector
-    #print("energy vector 1", energy_vector)
     energy_vector = energy_vector / 1000
-    energy_prices=xbos_services_getter.xbos_services_getter.get_price(price_stub, site, 'ENERGY', start_datetime, end_datetime+timedelta(hours=1), window='1h')
-    energy_prices=energy_prices.tz_convert('UTC')
+    start_ts = pytz.timezone("US/Pacific").localize(datetime.datetime(year=start_datetime.year, month=start_datetime.month, day=start_datetime.day, hour=0, minute=0))
+    end_ts = pytz.timezone("US/Pacific").localize(datetime.datetime(year=end_datetime.year, month=end_datetime.month, day=(end_datetime+timedelta(days=1)).day, hour=0, minute=0))
+    energy_prices=xbos_services_getter.xbos_services_getter.get_price(price_stub, site, 'ENERGY', start_ts, end_ts, window='1h')
     energy_prices=energy_prices.tz_localize(None)
     cost=energy_prices['price']*energy_vector
     total_cost=cost.sum()
 
-    demand_prices=xbos_services_getter.xbos_services_getter.get_price(price_stub, site, 'DEMAND', start_datetime, end_datetime+timedelta(hours=1), window='1h')
+    demand_prices=xbos_services_getter.xbos_services_getter.get_price(price_stub, site, 'DEMAND', start_ts, end_ts, window='1h')
     # can use this to figure out demand costs
     #energy is off by a factor of 1000 somewhere doe berkeley corp yard
 

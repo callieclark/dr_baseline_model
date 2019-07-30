@@ -1,11 +1,11 @@
-import pymortar
+#import pymortar
 import pandas as pd
 import pickle
 from .utils import get_date_str
 from .daily_data import get_daily_data
 
 def evaluate(site, date, model_name='best'):
-    cli = pymortar.Client()
+    #cli = pymortar.Client()
     date = pd.to_datetime(date).date()
     import sys
     best_model_path = './models/{}/{}'.format(site, model_name)

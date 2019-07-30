@@ -4,7 +4,7 @@ from .get_test_days import get_test_data, get_window_of_day
 from .get_greenbutton_id import *
 
 from sklearn.metrics import mean_squared_error
-import datetime
+import datetime, pytz
 import os
 import pandas as pd
 import numpy as np
@@ -25,8 +25,10 @@ def test_models(site, models='all'):
     if models == 'all':
         models = all_models.keys()
 
-    start_train = pd.to_datetime('2016-01-01').tz_localize('US/Pacific').isoformat()
-    end_train = pd.to_datetime(datetime.datetime.today().date()).tz_localize('US/Pacific').isoformat()
+    # start_train = pd.to_datetime('2016-01-01').tz_localize('US/Pacific').isoformat()
+    # end_train = pd.to_datetime(datetime.datetime.today().date()).tz_localize('US/Pacific').isoformat()
+    start_train = pytz.timezone("US/Pacific").localize(datetime.datetime(year=2016, month=1, day=1, hour=1, minute=0))
+    end_train = pytz.timezone("US/Pacific").localize(datetime.datetime.today())
 
     #get meter id to differentiate between pdp days
     tarrifs = pd.read_csv(os.path.join(PROJECT_ROOT, 'tariffs.csv'), index_col='meter_id')
@@ -53,6 +55,7 @@ def test_models(site, models='all'):
         # initialize the model
         model_class = all_models[model_name]['model_object']
         init_args = all_models[model_name]['init_args']
+        print('init args',init_args)
         if init_args is not None:
             model = model_class(init_args)
         else:
@@ -71,6 +74,7 @@ def test_models(site, models='all'):
                 errors.append(mean_squared_error(actual, prediction))
             except Exception as e:
                 print(e)
+        print (errors)
 
         test_rmse = np.sqrt(np.mean(errors))
         model.rmse = test_rmse
