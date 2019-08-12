@@ -20,18 +20,24 @@ def get_weather(site, start, end, agg, window,stub=outdoor_historic_stub):
 def get_power(site, start, end, agg, window, stub=meter_data_stub):
     try:
         power_gb=xbos_services_getter.get_meter_data_historical(stub, site, start, end, point_type='Green_Button_Meter' , aggregate='MEAN', window= "15m")
-        power_gb=power_gb*4000
+        if site=='berkeley-corporate-yard': #need to fix this at microservice level
+            power_gb=power_gb*4
+        else:
+            power_gb=power_gb*4000
         power_eagle=xbos_services_getter.get_meter_data_historical(stub, site, start, end, point_type='Building_Electric_Meter' , aggregate='MEAN', window= "15m")
         power=power_gb.fillna(value=power_eagle)
         #print("data for both")
-        
+
     except:
         #todo make this more robust!!
         if site=="jesse-turner-center":
             power=xbos_services_getter.get_meter_data_historical(stub, site, start, end, point_type='Building_Electric_Meter' , aggregate='MEAN', window= "15m")
         else:
             power_gb=xbos_services_getter.get_meter_data_historical(stub, site, start, end, point_type='Green_Button_Meter' , aggregate='MEAN', window= "15m")
-            power=power_gb*4000
+            if site=='berkeley-corporate-yard': #need to fix this at microservice level
+                power_gb=power_gb*4
+            else:
+                power_gb=power_gb*4000
     return power #returned in watts
 
 def get_df(site, start, end, agg='MEAN', interval='15m'):

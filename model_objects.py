@@ -14,7 +14,7 @@ from scipy import special
 from abc import ABC, abstractmethod
 
 from .feature_engineering import create_ridge_features
-from .utils import get_window_of_day, get_workdays, get_closest_station, get_month_window
+from .utils import get_window_of_day, get_workdays, get_closest_station, get_month_window, get_twomonth_window
 from .static_models import weather_model, power_model
 from .get_data import get_df
 
@@ -62,7 +62,7 @@ class WeatherModel(BaselineModel):
 
     def predict(self, site, event_day):
         # Get the correct data for prediction
-        start, end = get_month_window(event_day)
+        start, end = get_twomonth_window(event_day)
         data = get_df(site, start, end, agg='MEAN', interval='15m')
         #added two lines below
         #data['weather'] = data['weather'].interpolate()

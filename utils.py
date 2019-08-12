@@ -54,3 +54,13 @@ def get_month_window(date, time_delta=2):
     end_ts = pytz.timezone("US/Pacific").localize(datetime.datetime(year=end_date.year, month=end_date.month, day=end_date.day, hour=0, minute=0))
 
     return start_ts, end_ts
+
+def get_twomonth_window(date, time_delta=2):
+    end_date = pd.to_datetime(date).date() + timedelta(days=time_delta)
+    start_date = end_date - timedelta(days=60)
+    # start_ts = pd.to_datetime(start_date).tz_localize('US/Pacific').isoformat()
+    # end_ts = pd.to_datetime(end_date).tz_localize('US/Pacific').isoformat()
+    start_ts = pytz.timezone("US/Pacific").localize(datetime.datetime(year=start_date.year, month=start_date.month, day=start_date.day, hour=0, minute=0))
+    end_ts = pytz.timezone("US/Pacific").localize(datetime.datetime(year=end_date.year, month=end_date.month, day=end_date.day, hour=0, minute=0))
+
+    return start_ts, end_ts

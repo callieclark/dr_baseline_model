@@ -44,7 +44,7 @@ def test_models(site, models='all'):
     test_days, train_days = get_test_data(site, dr_event_dates, start_train, end_train)
 
     # train baseline model on days exlcuding event days and our test set
-    exclude_dates = np.concatenate((test_days, dr_event_dates))
+    exclude_dates = np.concatenate((test_days, dr_event_dates)) #excludes utility specific dates
 
     # test baseline on days similar to event days, and save results
     model_errors = {}
@@ -55,7 +55,6 @@ def test_models(site, models='all'):
         # initialize the model
         model_class = all_models[model_name]['model_object']
         init_args = all_models[model_name]['init_args']
-        print('init args',init_args)
         if init_args is not None:
             model = model_class(init_args)
         else:
@@ -69,12 +68,15 @@ def test_models(site, models='all'):
         errors = []
 
         for date in test_days:
-            actual, prediction, event_weather,baseline_weather = model.predict(site, date)
+            try:
+                actual, prediction, event_weather,baseline_weather = model.predict(site, date)
+            except Exception as e:
+                print(e)
             try:
                 errors.append(mean_squared_error(actual, prediction))
             except Exception as e:
                 print(e)
-        print (errors)
+        print (model_name,' Errors:',errors)
 
         test_rmse = np.sqrt(np.mean(errors))
         model.rmse = test_rmse

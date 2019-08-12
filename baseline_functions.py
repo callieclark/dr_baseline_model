@@ -94,7 +94,7 @@ def _remove_WE_holidays_NaN(data):
 
 
 def _get_last_Y_days(data, event_index, Y):
-    assert data.shape[0] >= Y, "not enough data for {} days".format(Y)
+    assert data.shape[0] >= Y, "{} not enough data for {} days".format(event_index,Y)
     try:
         start=data.index[0]
         data=data[start:event_index] #test this
@@ -177,14 +177,11 @@ def get_X_in_Y_baseline(data, weather_pivot, event_day,PDP_dates,
                         sampling="quarterly", weather_mapping=False, method='max'):
 
     event_data= data[data.index.date == event_day]
-
     data = _remove_event_day(data, event_index,PDP_dates)
-
     data = _remove_WE_holidays_NaN(data)
     weather_event_data=weather_pivot[weather_pivot.index.date == event_day]
     weather_data=_remove_event_day(weather_pivot, event_index, PDP_dates)
     weather_data = _remove_WE_holidays_NaN(weather_data)
-
     data_y =_get_last_Y_days(data, event_index, Y)
 
     days=data_y.index
